@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kompilyatorga Qarshi Shikoyat Arizasi</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Courier+Prime:wght@400;700&family=Manrope:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --paper: #f4f1e8;
+    --ink: #1f1d18;
+    --red: #9c2b25;
+    --dim: #6b6558;
+    --bg: #ddd6c2;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    min-height: 100vh;
+    background: var(--bg);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 40px 16px 60px;
+    font-family: 'Manrope', sans-serif;
+    color: var(--ink);
+  }
+
+  .input-card {
+    width: 100%;
+    max-width: 480px;
+    background: #fff;
+    border-radius: 10px;
+    padding: 16px 18px;
+    box-shadow: 0 6px 18px rgba(31,29,24,0.1);
+    margin-bottom: 22px;
+  }
+
+  label {
+    display: block;
+    font-size: 0.75rem;
+    color: var(--dim);
+    margin-bottom: 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+
+  textarea {
+    width: 100%;
+    min-height: 60px;
+    border: 1px solid #ddd6c2;
+    border-radius: 6px;
+    padding: 9px 11px;
+    font-family: 'Manrope', sans-serif;
+    font-size: 0.88rem;
+    resize: vertical;
+    margin-bottom: 12px;
+  }
+  textarea:focus { outline: none; border-color: var(--red); }
+
+  button#file-btn {
+    width: 100%;
+    background: var(--red);
+    color: #fff;
+    border: none;
+    font-weight: 700;
+    font-size: 0.88rem;
+    padding: 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: filter 0.15s ease;
+  }
+  button#file-btn:hover { filter: brightness(1.12); }
+
+  .sheet {
+    width: 100%;
+    max-width: 480px;
+    background: var(--paper);
+    border: 1.5px solid var(--ink);
+    padding: 28px 28px 32px;
+    font-family: 'Courier Prime', monospace;
+    box-shadow: 5px 5px 0 rgba(31,29,24,0.15);
+  }
+
+  .case-header {
+    text-align: center;
+    border-bottom: 2px solid var(--ink);
+    padding-bottom: 14px;
+    margin-bottom: 16px;
+  }
+
+  .case-title {
+    font-weight: 700;
+    font-size: 1.1rem;
+    letter-spacing: 0.02em;
+  }
+
+  .case-num {
+    font-size: 0.72rem;
+    color: var(--dim);
+    margin-top: 4px;
+  }
+
+  .party-row {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.78rem;
+    margin-bottom: 16px;
+  }
+
+  .party-row b { display: block; font-size: 0.65rem; color: var(--dim); text-transform: uppercase; margin-bottom: 2px; }
+
+  .intro-para {
+    font-size: 0.85rem;
+    line-height: 1.6;
+    margin-bottom: 14px;
+  }
+
+  .charge-list {
+    margin: 0 0 16px;
+    padding-left: 20px;
+    font-size: 0.83rem;
+    line-height: 1.65;
+  }
+
+  .charge-list li { margin-bottom: 8px; }
+
+  .demand-box {
+    background: #fff;
+    border-left: 3px solid var(--red);
+    padding: 10px 14px;
+    font-size: 0.84rem;
+    line-height: 1.55;
+    margin-bottom: 18px;
+  }
+
+  .sign-row {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.72rem;
+    color: var(--dim);
+    border-top: 1px dashed #b7ae97;
+    padding-top: 12px;
+  }
+</style>
+</head>
+<body>
+
+<div class="input-card">
+  <label for="error-input">Xatoligingizni tasvirlab bering (ixtiyoriy)</label>
+  <textarea id="error-input" placeholder="Masalan: dasturim kutilmaganda to'xtab qoldi..."></textarea>
+  <button id="file-btn">Shikoyat yozish</button>
+</div>
+
+<div class="sheet">
+  <div class="case-header">
+    <div class="case-title">SHIKOYAT ARIZASI</div>
+    <div class="case-num" id="case-num">Ish № —</div>
+  </div>
+
+  <div class="party-row">
+    <div><b>Ariza beruvchi</b>Dasturchi (men)</div>
+    <div style="text-align:right"><b>Ayblanuvchi</b>Kompilyator</div>
+  </div>
+
+  <p class="intro-para" id="intro-para">—</p>
+
+  <ol class="charge-list" id="charge-list"></ol>
+
+  <div class="demand-box" id="demand-box">—</div>
+
+  <div class="sign-row">
+    <span id="sign-date">Sana: —</span>
+    <span>Imzo: _______________</span>
+  </div>
+</div>
+
+<script>
+  const charges = [
+    "Ayblanuvchi (Kompilyator) mening mukammal kodimni \"xato\" deb atash kabi insofsizlikka yo'l qo'ydi.",
+    "Mening o'zgaruvchilarim to'g'ri yozilgan edi, ammo Kompilyator ularni \"aniqlanmagan\" deb e'lon qildi — bu haqoratdir.",
+    "Nuqta-vergul o'z joyida edi. Kompilyator buni ataylab ko'rmaslikka oldi.",
+    "Mening kodim mening kompyuterimda ishlagan. Bu sudning e'tiborga olishi shart bo'lgan dalil.",
+    "Kompilyator \"syntax error\" deb atagan narsa, aslida mening noan'anaviy uslubim edi.",
+    "Bitta qavsni yopmaganim — bu xato emas, bu qasddan qilingan ijodiy qaror edi.",
+    "Xotira sizib chiqishi — bu xato emas, bu dasturning erkin fikrlash huquqi.",
+    "Kompilyator ogohlantirishlarni e'tiborsiz qoldirishni o'zi tavsiya qilgandi, endi esa meni ayblamoqda.",
+    "O'zgaruvchim nomi \"x\" edi. Bu qisqalik — ayb emas, samaradorlik.",
+    "Stack overflow — bu mening rekursiyamning qudratiga Kompilyatorning dosh berolmasligi.",
+    "Null pointer xatosi — bu Kompilyatorning \"hech narsa\" tushunchasini anglay olmasligi muammosi.",
+    "Indentatsiya masalasida mening o'ziga xos badiiy nuqtai nazarim bor edi.",
+    "Infinite loop — bu xato emas, bu dasturning abadiylikka intilishi.",
+    "\"TODO\" deb yozgan joyim ishlamasligi tabiiy, chunki u hali \"TODO\" edi.",
+    "Kompilyator xatoni 47-qatorda ko'rsatdi, lekin xato aslida 12-qatorda edi — bu yetarlicha e'tiborsizlik emasmi?",
+    "Men kodni internetdan oldim. Demak, javobgarlik asl mualliflikida.",
+    "Bu funksiya ishlamasligi mumkin, chunki uni dushanba kuni yozganman.",
+    "Kompilyator o'zini himoya qilish uchun \"xato xabari\" ixtiro qilmoqda, deb taxmin qilaman."
+  ];
+
+  const demands = [
+    "Shu sababli, Kompilyatordan rasmiy ravishda uzr so'rashini va xatoni \"xususiyat\" deb qayta nomlashini talab qilaman.",
+    "Shu sababli, xato xabarini do'stonaroq ohangda qayta yozishni talab qilaman.",
+    "Shu sababli, Kompilyator mening kodimni \"tushunmagani\" uchun qo'shimcha o'qishga yuborilishini talab qilaman.",
+    "Shu sababli, bu ish StackOverflow hamjamiyatiga ko'rib chiqish uchun yuborilishini so'rayman.",
+    "Shu sababli, xatoni rasman \"kelajakdagi funksiya\" deb belgilashni talab qilaman.",
+    "Shu sababli, Kompilyator mendan emas, o'zidan kechirim so'rashi kerak, deb hisoblayman."
+  ];
+
+  const fallbackIntros = [
+    "Ushbu ariza orqali men, pastda imzo chekuvchi dasturchi, Kompilyator tomonidan asossiz ravishda \"xato\" deb topilgan holatlar yuzasidan rasmiy shikoyat bildiraman.",
+  ];
+
+  const errorInput = document.getElementById('error-input');
+  const fileBtn = document.getElementById('file-btn');
+  const introPara = document.getElementById('intro-para');
+  const chargeList = document.getElementById('charge-list');
+  const demandBox = document.getElementById('demand-box');
+  const caseNum = document.getElementById('case-num');
+  const signDate = document.getElementById('sign-date');
+
+  function pick(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
+  function shuffle(arr) { return [...arr].sort(() => Math.random() - 0.5); }
+
+  function fileComplaint() {
+    const userError = errorInput.value.trim();
+    if (userError) {
+      introPara.textContent = `Ushbu ariza orqali men, pastda imzo chekuvchi dasturchi, quyidagi holat yuzasidan Kompilyatorga qarshi rasmiy shikoyat bildiraman: "${userError}". Mening fikrimcha, bu mening aybim emas.`;
+    } else {
+      introPara.textContent = pick(fallbackIntros);
+    }
+
+    chargeList.innerHTML = '';
+    shuffle(charges).slice(0, 4).forEach(c => {
+      const li = document.createElement('li');
+      li.textContent = c;
+      chargeList.appendChild(li);
+    });
+
+    demandBox.textContent = pick(demands);
+    caseNum.textContent = 'Ish № KMP-' + (Math.floor(Math.random() * 9000) + 1000);
+    signDate.textContent = 'Sana: ' + new Date().toLocaleDateString('uz-UZ', { day: '2-digit', month: '2-digit', year: 'numeric' });
+  }
+
+  fileBtn.addEventListener('click', fileComplaint);
+  fileComplaint();
+</script>
+
+</body>
+</html>
